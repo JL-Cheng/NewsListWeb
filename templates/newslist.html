@@ -1,0 +1,177 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+
+		<title>News List</title>
+
+		<style media="screen">
+			.table1{
+				border-collapse: separate;
+				border-spacing: 20px;
+			}
+
+			.button1{
+				display: inline-block;
+				border-radius: 4px;
+				background-color: #1e90ff;
+				border: none;
+				color: #FFFFFF;
+				text-align: center;
+				font-size: 20px;
+				padding: 20px;
+				width: 90%;
+				transition: all 0.5s;
+				cursor: pointer;
+				margin: 5px;
+		}
+
+		.button1:hover{
+				box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24),0 17px 50px 0 rgba(0,0,0,0.19);
+		}
+
+		</style>
+	</head>
+
+	<body>
+		<div class="jumbotron">
+			<div style="float:right">
+				<form action="/" class="form-inline" method="POST">
+					{% csrf_token %}
+					<button type="submit" class="btn btn-primary" name="refresh_button" style="float:right">refresh</button>
+				</form>
+			</div>
+
+			<center><h3>To know more about the world!</h3></center>
+			<br><br>
+
+			{% if admin == False %}
+			<div class="container">
+				<form action="/login/" class="form-inline" method="POST">
+					{% csrf_token %}
+					<table>
+						<tr>
+							<td>
+								<input type="text" class="form-control" style="width:100px;" name="username" placeholder="username">
+							</td>
+							<td>
+								<input type="password" class="form-control" style="width:100px;" name="password" placeholder="password">
+							</td>
+							<td>
+								<button type="submit" class="btn btn-primary" style="width:100px;">Log in!</button>
+							</td>
+						</tr>
+					</table>
+				</form>
+			</div>
+			{% else %}
+			<div class="container">
+				<form action="/login/" class="form-inline" method="POST">
+					{% csrf_token %}
+					<center>
+						<table class='table1'>
+							<tr>
+								<td>
+									<h5>Welcome NOIR!</h5>
+								</td>
+								<td>
+									<button type="submit" class="btn btn-primary" style="width:100px;"  value="Log out!" name="logout_button">Log out!</button>
+								</td>
+							</tr>
+						</table>
+					</center>
+				</form>
+			</div>
+			{% endif %}
+		</div>
+		<br>
+
+		<div class="container">
+			<form action="/search/" class="form-inline" method="POST">
+				{% csrf_token %}
+				<table>
+					<tr>
+						<td>
+							<input type="text" class="form-control" size="125" name="search_str" placeholder="Search for something...">
+						</td>
+						<td>
+							<button type="submit" class="btn btn-primary" style="width:140px;">Search</button>
+						</td>
+					</tr>
+				</table>
+			</form>
+		</div>
+		<br><br>
+
+		{% if page_numbers == 0 %}
+		<div class="container">
+			<h4>
+				Sorry!No Results Found...
+			</h4>
+		</div>
+		{% else %}
+		<div class="container">
+			<h4>
+				Article Numbers:{{page_numbers}}
+			</h4>
+		</div>
+		<br>
+		<br>
+
+		{% for page in pages %}
+		<div class="container">
+			<div class="media">
+				<img class="mr-3" src="{{page.image_url}}" alt="无相关图片" style="height:100px;width:140px;">
+				<div class="media-body">
+					<table class="table1">
+						<tr>
+							<td>
+								<b>
+									<h5 class="mt-0">
+										<a href="{{page.url}}">
+											{{page.title}}
+										</a>
+									</h5>
+								</b>
+							</td>
+							<td>
+								<form class="form-inline" action="/delete/" method="POST">
+									{% csrf_token %}
+									<button type="submit" {% if not admin %}hidden{% endif %} value="{{page.title}}" style="width:30px;height:30px;" name="delete_button">X</button>
+								</form>
+							</td>
+						</tr>
+					</table>
+					<p {% if not page.show %}style="display: -webkit-box; -webkit-box-orient: vertical;  -webkit-line-clamp: 3;overflow: hidden;"{% endif %}>
+						{{page.content|safe}}
+					</p>
+					<p>
+						<form action="/show/" class="form-inline" method="POST">
+							{% csrf_token %}
+							<button  type="submit" class="button1" value="{{page.title}}+{{page.show}}" style="width:150px;line-height:0;" name="show_button"><span>{% if not page.show %}展开{% else %}收起{% endif %}</span></button>
+						</form>
+					</p>
+					<p>
+							{{page.source}}
+					</p>
+				</div>
+			</div>
+		</div>
+		<br>
+		<br>
+		{% endfor %}
+		{% endif %}
+
+		{% if not login_input %}
+		<script type="text/javascript">
+			alert('Input Error!')
+		</script>
+		{% endif %}
+		<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
+	</body>
+</html>
